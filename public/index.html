@@ -653,6 +653,8 @@
   </div>
 </div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ====================================================
 // Supabase 설정 - 환경변수에서 주입됨
@@ -660,9 +662,9 @@
 const SUPABASE_URL = window.ENV_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || '';
 
-let supabase;
+let sbClient;
 try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch(e) {
   console.error('Supabase 초기화 실패:', e);
 }
@@ -744,13 +746,13 @@ function getUntil(dt) {
 async function loadCourses() {
   loading(true);
   try {
-    const { data: coursesData, error: ce } = await supabase
+    const { data: coursesData, error: ce } = await sbClient
       .from('courses')
       .select('*')
       .order('created_at', { ascending: false });
     if (ce) throw ce;
 
-    const { data: registrantsData, error: re } = await supabase
+    const { data: registrantsData, error: re } = await sbClient
       .from('registrants')
       .select('*')
       .order('applied_at', { ascending: true });
@@ -769,23 +771,23 @@ async function loadCourses() {
 }
 
 async function apiAddCourse(data) {
-  const { data: row, error } = await supabase.from('courses').insert([data]).select().single();
+  const { data: row, error } = await sbClient.from('courses').insert([data]).select().single();
   if (error) throw error;
   return row;
 }
 
 async function apiUpdateCourse(id, data) {
-  const { error } = await supabase.from('courses').update(data).eq('id', id);
+  const { error } = await sbClient.from('courses').update(data).eq('id', id);
   if (error) throw error;
 }
 
 async function apiDeleteCourse(id) {
-  const { error } = await supabase.from('courses').delete().eq('id', id);
+  const { error } = await sbClient.from('courses').delete().eq('id', id);
   if (error) throw error;
 }
 
 async function apiAddRegistrant(courseId, name) {
-  const { data: row, error } = await supabase.from('registrants').insert([{
+  const { data: row, error } = await sbClient.from('registrants').insert([{
     course_id: courseId,
     name: name
   }]).select().single();
