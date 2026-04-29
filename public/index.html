@@ -719,7 +719,8 @@ function initDateInputs() {
 
 function parseDt(date, time) {
   if (!date || !time) return null;
-  return new Date(`${date}T${time}:00`);
+  const t = time.slice(0, 5);
+  return new Date(`${date}T${t}:00`);
 }
 function fmtDt(dt) {
   if (!dt) return '-';
